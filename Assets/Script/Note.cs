@@ -7,10 +7,13 @@ public class Note : MonoBehaviour
 {
     public float noteSpeed = 400;
     private Image noteImage;
-
-    void Start()
+    
+    void OnEnable()
     {
-        noteImage = GetComponent<Image>();
+        if (noteImage == null)
+            noteImage = GetComponent<Image>();
+
+        noteImage.enabled = true;
     }
 
     public void HideNote()
@@ -21,5 +24,10 @@ public class Note : MonoBehaviour
     void Update()
     {
         transform.localPosition += Vector3.right * noteSpeed * Time.deltaTime;
+    }
+
+    public bool GetNoteFlag()
+    {
+        return noteImage.enabled;
     }
 }
