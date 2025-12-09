@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class Note : MonoBehaviour
 {
+    private int lineID = -1;
+    
     public float noteSpeed = 400;
     private Image noteImage;
     
@@ -23,11 +25,21 @@ public class Note : MonoBehaviour
 
     void Update()
     {
-        transform.localPosition += Vector3.right * noteSpeed * Time.deltaTime;
+        transform.localPosition += Vector3.up * -noteSpeed * Time.deltaTime;
     }
 
     public bool GetNoteFlag()
     {
         return noteImage.enabled;
+    }
+    
+    public void SetLineID(int id)
+    {
+        lineID = id;
+    }
+
+    public int GetLineID()
+    {
+        return lineID;
     }
 }
