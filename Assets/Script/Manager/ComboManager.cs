@@ -1,37 +1,37 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ComboManager : MonoBehaviour
+public class ComboManager : Singleton<ComboManager>
 {
-    [SerializeField] private GameObject goComboImage = null;
-    [SerializeField] private Text txtCombo = null;
+    [SerializeField] private GameObject img_Combo = null;
+    [SerializeField] private Text txt_Combo = null;
 
     private int currentCombo = 0;
 
     private void Start()
     {
-        goComboImage.SetActive(false);
-        txtCombo.gameObject.SetActive(false);
+        img_Combo.SetActive(false);
+        txt_Combo.gameObject.SetActive(false);
     }
     
     public void IncreaseCombo(int p_num = 1)
     {
         currentCombo += p_num;
-        txtCombo.text = string.Format("{0:#,##}", currentCombo);
+        txt_Combo.text = string.Format("{0:#,##}", currentCombo);
 
         if (currentCombo > 1)
         {
-            goComboImage.SetActive(true);
-            txtCombo.gameObject.SetActive(true);
+            img_Combo.SetActive(true);
+            txt_Combo.gameObject.SetActive(true);
         }
     }
 
     public void ResetCombo()
     {
         currentCombo = 0;
-        txtCombo.text = "0";
-        goComboImage.SetActive(false);
-        txtCombo.gameObject.SetActive(false);
+        txt_Combo.text = "0";
+        img_Combo.SetActive(false);
+        txt_Combo.gameObject.SetActive(false);
     }
 
     public int GetCurrentCombo()

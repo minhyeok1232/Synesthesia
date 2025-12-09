@@ -1,16 +1,41 @@
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class GameManager : Singleton<GameManager>
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [Header("Managers")]
+    [SerializeField] private ComboManager  comboManager;
+    [SerializeField] private EffectManager effectManager;
+    [SerializeField] private NoteManager   noteManager;
+    [SerializeField] private ScoreManager  scoreManager;
+    [SerializeField] private TimingManager timingManager;
+    
+    void Awake()
     {
-        
+        EnsureSingleInstance();
     }
-
-    // Update is called once per frame
-    void Update()
+    
+    #region Get
+    
+    public ComboManager GetComboManager()
     {
-        
+        return comboManager;
     }
+    public EffectManager GetEffectManager()
+    {
+        return effectManager;
+    }
+    public NoteManager GetNoteManager()
+    {
+        return noteManager;
+    }
+    public ScoreManager GetScoreManager()
+    {
+        return scoreManager;
+    }
+    public TimingManager GetTimingManager()
+    {
+        return timingManager;
+    }
+    
+    #endregion
 }

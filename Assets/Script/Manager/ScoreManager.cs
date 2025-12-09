@@ -2,10 +2,12 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public class ScoreManager : MonoBehaviour
+public class ScoreManager : Singleton<ScoreManager>
 {
+    // Animator
     [SerializeField] Animator scoreAnimator = null;
     
+    // Score
     [SerializeField] private Text scoreText;
     [SerializeField] private int increaseScore = 10;
     private int currentScore = 0;
@@ -13,23 +15,21 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] private float[] weight = null;
     [SerializeField] private int comboBonusScore = 10;
     
-    private ComboManager theCombo;
-    
     void Start()
     {
-        theCombo = FindObjectOfType<ComboManager>();
-        scoreAnimator = GetComponent<Animator>();
         currentScore = 0;
         scoreText.text = "0";
     }
 
     public void IncreaseScore(int p_JudgementState)
     {
+        ComboManager comboManager = GameManager.Instance.GetComboManager();
+        
         // 콤보 증가
-        theCombo.IncreaseCombo();
+        comboManager.IncreaseCombo();
         
         // 콤보 보너스 계산
-        int currentCombo = theCombo.GetCurrentCombo();
+        int currentCombo = comboManager.GetCurrentCombo();
         int scoreBonus = (currentCombo / 10) * comboBonusScore;
         
         // 점수 증가
@@ -43,7 +43,7 @@ public class ScoreManager : MonoBehaviour
         
     }
     
-    public void animPlayScore()
+    public void AnimPlayScore()
     {
         scoreAnimator.SetTrigger("ScoreUp");
     }
