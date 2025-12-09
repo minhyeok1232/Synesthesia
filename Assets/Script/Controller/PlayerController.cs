@@ -5,11 +5,9 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    TimingManager theTimingManager;
-
     void Start()
     {
-        theTimingManager = FindObjectOfType<TimingManager>();
+        
     }
 
     void Update()
@@ -19,21 +17,23 @@ public class PlayerController : MonoBehaviour
 
     void GetKeyDown()
     {
+        TimingManager timingManager = GameManager.Instance.GetTimingManager();
+        
         if (Input.GetKeyDown(KeyCode.D))
         {
-            theTimingManager.CheckTiming(0);
+            timingManager.CheckTiming(0);
         }
         else if (Input.GetKeyDown(KeyCode.F))
         {
-            theTimingManager.CheckTiming(1);
+            timingManager.CheckTiming(1);
         }
         else if (Input.GetKeyDown(KeyCode.J))
         {
-            theTimingManager.CheckTiming(2);
+            timingManager.CheckTiming(2);
         }
         else if (Input.GetKeyDown(KeyCode.K))
         {
-            theTimingManager.CheckTiming(3);
+            timingManager.CheckTiming(3);
         }
         else
         {
