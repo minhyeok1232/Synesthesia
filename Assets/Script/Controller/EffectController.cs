@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class EffectManager : Singleton<EffectManager>
+public class EffectController : MonoBehaviour
 {
     [SerializeField] Animator noteHitAnimator = null;
     [SerializeField] Transform[] noteHitTransform;
@@ -13,6 +13,11 @@ public class EffectManager : Singleton<EffectManager>
     [SerializeField] Sprite[] judgementSprite = null;
 
     string hit = "Hit";
+
+    private void Start()
+    {
+        GameManager.Instance.SetEffectController(this);
+    }
 
     public void JudgementEffect(int p_num)
     {

@@ -3,12 +3,15 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : Singleton<GameManager>
 {
-    [Header("Managers")]
-    [SerializeField] private ComboManager  comboManager;
-    [SerializeField] private EffectManager effectManager;
-    [SerializeField] private NoteManager   noteManager;
-    [SerializeField] private ScoreManager  scoreManager;
-    [SerializeField] private TimingManager timingManager;
+    [Header("Controllers")]
+    private ComboController  comboController;
+    private EffectController effectController;
+    private NoteController   noteController;
+    private PlayerController playerController;
+    private ScoreController  scoreController;
+    private TimingController timingController;
+    
+    
     [SerializeField] private AudioManager  audioManager;
     
     [Header("Scenes")]
@@ -19,27 +22,52 @@ public class GameManager : Singleton<GameManager>
         EnsureSingleInstance();
     }
     
-    #region Get
+    #region Get & Set
     
-    public ComboManager GetComboManager()
+    public void SetComboController(ComboController _controller)
     {
-        return comboManager;
+        comboController = _controller;
     }
-    public EffectManager GetEffectManager()
+    public void SetEffectController(EffectController _controller)
     {
-        return effectManager;
+        effectController = _controller;
     }
-    public NoteManager GetNoteManager()
+    public void SetNoteController(NoteController _controller)
     {
-        return noteManager;
+        noteController = _controller;
     }
-    public ScoreManager GetScoreManager()
+    public void SetPlayerController(PlayerController _controller)
     {
-        return scoreManager;
+        playerController = _controller;
     }
-    public TimingManager GetTimingManager()
+    public void SetScoreController(ScoreController _controller)
     {
-        return timingManager;
+        scoreController = _controller;
+    }
+    public void SetTimingController(TimingController _controller)
+    {
+        timingController = _controller;
+    }
+    
+    public ComboController GetComboController()
+    {
+        return comboController;
+    }
+    public EffectController GetEffectController()
+    {
+        return effectController;
+    }
+    public NoteController GetNoteController()
+    {
+        return noteController;
+    }
+    public ScoreController GetScoreController()
+    {
+        return scoreController;
+    }
+    public TimingController GetTimingController()
+    {
+        return timingController;
     }
 
     public AudioManager GetAudioManager()

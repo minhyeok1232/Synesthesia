@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TimingManager : Singleton<TimingManager>
+public class TimingController : MonoBehaviour
 {
     // Time
     public int bpm = 0;      // 리듬게임 비트 단위. 1분당 몇 비트인지.
@@ -25,6 +25,8 @@ public class TimingManager : Singleton<TimingManager>
     
     void Start()
     {
+        GameManager.Instance.SetTimingController(this);
+        
         timingBoxs = new Vector2[rect.Length];
         
         // 라인 별 노트 리스트 초기화
@@ -83,9 +85,9 @@ public class TimingManager : Singleton<TimingManager>
     
     public void CheckTiming(int keyID)
     {
-        EffectManager effectManager = GameManager.Instance.GetEffectManager();
-        ComboManager  comboManager  = GameManager.Instance.GetComboManager();
-        ScoreManager  scoreManager  = GameManager.Instance.GetScoreManager();
+        EffectController effectController = GameManager.Instance.GetEffectController();
+        ComboController  comboController  = GameManager.Instance.GetComboController();
+        ScoreController  scoreController  = GameManager.Instance.GetScoreController();
         
         List<GameObject> currentLineNotes = boxNoteLists[keyID];
         
@@ -105,17 +107,17 @@ public class TimingManager : Singleton<TimingManager>
                     // 이펙트 연출
                     if (j < timingBoxs.Length - 1)
                     {
-                        effectManager.NoteHitEffect(keyID);
-                        scoreManager.AnimPlayScore();
+                        effectController.NoteHitEffect(keyID);
+                        scoreController.AnimPlayScore();
                     }
     
-                    effectManager.JudgementEffect(j);
-                    scoreManager.IncreaseScore(j);
+                    effectController.JudgementEffect(j);
+                    scoreController.IncreaseScore(j);
                     judgementRecord[j]++;  // 판정 기록
 
                     if (j == 3)
                     {
-                        comboManager.ResetCombo();
+                        comboController.ResetCombo();
                     }
                     return;
                 }
@@ -123,7 +125,7 @@ public class TimingManager : Singleton<TimingManager>
         }
         
         MissRecord();
-        comboManager.ResetCombo();
-        effectManager.JudgementEffect(timingBoxs.Length);
+        comboController.ResetCombo();
+        effectController.JudgementEffect(timingBoxs.Length);
     }
 }

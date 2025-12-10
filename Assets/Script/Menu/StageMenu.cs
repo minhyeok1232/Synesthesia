@@ -1,8 +1,22 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class StageMenu : MonoBehaviour
 {
     [SerializeField] GameObject TitleMenuUI = null;
+    
+    [Header("Buttons")] 
+    [SerializeField] private Button btn_Back;
+    [SerializeField] private Button btn_Play;
+    
+    private void Start()
+    {
+        if (btn_Back != null)
+            btn_Back.onClick.AddListener(() => BtnBack());
+        
+        if (btn_Play != null)
+            btn_Play.onClick.AddListener(() => BtnPlay());
+    }
     
     public void BtnBack()  // 버튼 이벤트 등록
     {
@@ -12,7 +26,9 @@ public class StageMenu : MonoBehaviour
 
     public void BtnPlay()  // 버튼 이벤트 등록
     {
-        // GameManager.instance.GameStart(); // 게임 매니저를 통해 게임 스타트
-        // this.gameObject.SetActive(false); // 스테이지 비활
+        this.gameObject.SetActive(false); // 스테이지 비활
+        
+        SceneLoader sceneLoader = GameManager.Instance.GetSceneLoader();
+        sceneLoader?.ChangeScene(1); // GameScene
     }
 }
