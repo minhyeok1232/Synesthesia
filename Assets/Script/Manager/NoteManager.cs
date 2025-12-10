@@ -23,6 +23,7 @@ public class NoteManager : MonoBehaviour
             
             if (collision.GetComponent<Note>().GetNoteFlag())
             {
+                timingManager.MissRecord();
                 effectManager.JudgementEffect(4);
                 comboManager.ResetCombo();
             }

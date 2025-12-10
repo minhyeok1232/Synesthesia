@@ -4,22 +4,26 @@ using UnityEngine;
 
 public class CenterFlame : MonoBehaviour
 {
-    AudioSource myAudio;
-    bool musicStart = false;
+    public static bool musicStart = false;
 
     void Start()
     {
-        myAudio = GetComponent<AudioSource>();
+
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        AudioManager audioManager = GameManager.Instance.GetAudioManager();
+        
         if (!musicStart)
         {
             if (collision.CompareTag("Note"))
             {
-                myAudio.Play();
                 musicStart = true;
+                if (audioManager != null)
+                    audioManager.PlayMusic();
+                else
+                    Debug.Log("AudioManager is Null !! ");
             }
         }
     }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : Singleton<GameManager>
 {
@@ -8,6 +9,10 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private NoteManager   noteManager;
     [SerializeField] private ScoreManager  scoreManager;
     [SerializeField] private TimingManager timingManager;
+    [SerializeField] private AudioManager  audioManager;
+    
+    [Header("Scenes")]
+    [SerializeField] private SceneLoader   sceneLoader;
     
     void Awake()
     {
@@ -35,6 +40,16 @@ public class GameManager : Singleton<GameManager>
     public TimingManager GetTimingManager()
     {
         return timingManager;
+    }
+
+    public AudioManager GetAudioManager()
+    {
+        return audioManager;
+    }
+
+    public SceneLoader GetSceneLoader()
+    {
+        return sceneLoader;
     }
     
     #endregion

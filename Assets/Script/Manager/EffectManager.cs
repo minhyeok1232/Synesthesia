@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class EffectManager : Singleton<EffectManager>
 {
     [SerializeField] Animator noteHitAnimator = null;
+    [SerializeField] Transform[] noteHitTransform;
 
     [SerializeField] Animator judgementAnimator = null;
     [SerializeField] Image judgementImage = null;
@@ -19,8 +20,10 @@ public class EffectManager : Singleton<EffectManager>
         judgementAnimator.SetTrigger(hit);
     }
 
-    public void NoteHitEffect()
+    public void NoteHitEffect(int _note)
     {
+        noteHitAnimator.gameObject.transform.SetParent(noteHitTransform[_note]);
+        noteHitAnimator.gameObject.transform.localPosition = Vector3.zero;
         noteHitAnimator.SetTrigger(hit);
     }
 }

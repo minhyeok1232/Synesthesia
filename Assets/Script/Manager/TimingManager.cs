@@ -8,6 +8,8 @@ public class TimingManager : Singleton<TimingManager>
     public int bpm = 0;      // 리듬게임 비트 단위. 1분당 몇 비트인지.
     double currentTime = 0d; // 리듬 게임은 오차 적은게 중요해서 float보단 double
 
+    private float noteFallTime = 5.0f; // 노트가 떨어지는 시간
+    
     // GameObject
     public List<GameObject>[] boxNoteLists = null; 
 
@@ -16,6 +18,8 @@ public class TimingManager : Singleton<TimingManager>
     [SerializeField] Transform[] center = null; // 판정 범위의 중심
     [SerializeField] RectTransform[] rect = null; // 다양한 판정 범위
     [SerializeField] private Transform[] notes = null; // 노트를 관리하는 게임오브젝트
+    
+    int[] judgementRecord = new int[5];
     
     Vector2[] timingBoxs = null; // 판정 범위 최소값 x, 최대값 y
     
@@ -31,7 +35,7 @@ public class TimingManager : Singleton<TimingManager>
 
             for (int j = 0; j < rect.Length; j++)
             {
-                timingBoxs[i].Set(center[i].localPosition.x - rect[j].rect.width / 2,
+                timingBoxs[j].Set(center[i].localPosition.x - rect[j].rect.width / 2,
                     center[i].localPosition.x + rect[j].rect.width / 2);
             }
         }
@@ -41,24 +45,42 @@ public class TimingManager : Singleton<TimingManager>
     {
         currentTime += Time.deltaTime;
         
-        if (currentTime >= 60d / bpm)
-        {
-            // 랜덤 패턴 
-            int randomKeyID = Random.Range(0, appear.Length);
+        float currentMusicTime = AudioManager.Instance.GetMusicTime();
+        float totalMusicLength = AudioManager.Instance.GetMusicLength();
         
-            // ObjectPool에서 해당 라인의 큐를 사용하여 노트를 가져옵니다.
-            GameObject note = ObjectPool.instance.GetNote(randomKeyID);
-            
-            note.GetComponent<Note>().SetLineID(randomKeyID); // 몇번 째 키 ID 저장
-            
-            note.transform.position = appear[randomKeyID].position;
-            note.SetActive(true);
-            
-            boxNoteLists[randomKeyID].Add(note);
-            
-            currentTime -= 60d / bpm;  // currentTime = 0 으로 리셋해주면 안된다. 
-        }    
+        if (currentMusicTime < totalMusicLength - noteFallTime)
+        {
+            if (currentTime >= 60d / bpm && !AudioManager.isMusicEnd)
+            {
+                // 랜덤 패턴 
+                int randomKeyID = Random.Range(0, appear.Length);
+
+                // ObjectPool에서 해당 라인의 큐를 사용하여 노트를 가져옵니다.
+                GameObject note = ObjectPool.instance.GetNote(randomKeyID);
+
+                note.GetComponent<Note>().SetLineID(randomKeyID); // 몇번 째 키 ID 저장
+
+                note.transform.position = appear[randomKeyID].position;
+                note.SetActive(true);
+
+                boxNoteLists[randomKeyID].Add(note);
+
+                currentTime -= 60d / bpm; // currentTime = 0 으로 리셋해주면 안된다. 
+            }
+        }
     }
+    
+    public int[] GetJudgementRecord()
+    {
+        return judgementRecord;
+    }
+
+    public void MissRecord()
+    {
+        Debug.Log("Miss");
+        judgementRecord[4]++;  // Miss의 판정 기록
+    }
+    
     public void CheckTiming(int keyID)
     {
         EffectManager effectManager = GameManager.Instance.GetEffectManager();
@@ -69,16 +91,12 @@ public class TimingManager : Singleton<TimingManager>
         
         for(int i = 0; i < currentLineNotes.Count; i++)
         {
-            float t_notePosX = currentLineNotes[i].transform.localPosition.x;
-    
+            float t_notePosY = currentLineNotes[i].transform.localPosition.y;
+            
             // 판정 순서 : Perfect -> Cool -> Good -> Bad
             for (int j = 0; j < timingBoxs.Length; j++)
             {
-                Debug.Log(timingBoxs[j].x);
-                Debug.Log(timingBoxs[j].y);
-
-                
-                if (timingBoxs[j].x <= t_notePosX && t_notePosX <= timingBoxs[j].y)
+                if (timingBoxs[j].x <= t_notePosY && t_notePosY <= timingBoxs[j].y)
                 {
                     // 노트 제거
                     currentLineNotes[i].GetComponent<Note>().HideNote();
@@ -87,17 +105,24 @@ public class TimingManager : Singleton<TimingManager>
                     // 이펙트 연출
                     if (j < timingBoxs.Length - 1)
                     {
-                        effectManager.NoteHitEffect();
+                        effectManager.NoteHitEffect(keyID);
                         scoreManager.AnimPlayScore();
                     }
     
                     effectManager.JudgementEffect(j);
                     scoreManager.IncreaseScore(j);
+                    judgementRecord[j]++;  // 판정 기록
+
+                    if (j == 3)
+                    {
+                        comboManager.ResetCombo();
+                    }
                     return;
                 }
             }
         }
         
+        MissRecord();
         comboManager.ResetCombo();
         effectManager.JudgementEffect(timingBoxs.Length);
     }

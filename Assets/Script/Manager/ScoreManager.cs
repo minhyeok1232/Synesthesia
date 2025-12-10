@@ -26,7 +26,8 @@ public class ScoreManager : Singleton<ScoreManager>
         ComboManager comboManager = GameManager.Instance.GetComboManager();
         
         // 콤보 증가
-        comboManager.IncreaseCombo();
+        if (p_JudgementState != 3) 
+            comboManager.IncreaseCombo();
         
         // 콤보 보너스 계산
         int currentCombo = comboManager.GetCurrentCombo();
@@ -39,8 +40,11 @@ public class ScoreManager : Singleton<ScoreManager>
         // 점수 반영
         currentScore += t_increaseScore;
         scoreText.text = string.Format("{0:#,##0}", currentScore);
-        
-        
+    }
+    
+    public int GetCurrentScore()
+    {
+        return currentScore;
     }
     
     public void AnimPlayScore()
