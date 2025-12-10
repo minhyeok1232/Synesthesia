@@ -17,9 +17,9 @@ public class Result : MonoBehaviour
 
     public void ShowResult()
     {
-        TimingManager timingManager = GameManager.Instance.GetTimingManager();
-        ScoreManager  scoreManager  = GameManager.Instance.GetScoreManager();
-        ComboManager comboManager   = GameManager.Instance.GetComboManager();
+        TimingController timingController = GameManager.Instance.GetTimingController();
+        ScoreController scoreController   = GameManager.Instance.GetScoreController();
+        ComboController comboController   = GameManager.Instance.GetComboController();
         
         // 결과 UI 활상화
         goUI.SetActive(true);
@@ -31,9 +31,9 @@ public class Result : MonoBehaviour
         txtMaxCombo.text = "0";
 
         // 점수들 가져오기
-        int[] t_judgement = timingManager.GetJudgementRecord();
-        int t_currentScore = scoreManager.GetCurrentScore();
-        int t_maxCombo = comboManager.GetMaxCombo();
+        int[] t_judgement = timingController.GetJudgementRecord();
+        int t_currentScore = scoreController.GetCurrentScore();
+        int t_maxCombo = comboController.GetMaxCombo();
 
         // 텍스트 세팅 (가져온 것들로)
         for (int i = 0; i < txtCount.Length; i++)

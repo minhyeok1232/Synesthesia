@@ -1,13 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
     void Start()
     {
-        
+        GameManager.Instance.SetPlayerController(this);
     }
 
     void Update()
@@ -17,23 +14,25 @@ public class PlayerController : MonoBehaviour
 
     void GetKeyDown()
     {
-        TimingManager timingManager = GameManager.Instance.GetTimingManager();
+        TimingController timingController = GameManager.Instance.GetTimingController();
+
+        Debug.Log(timingController);
         
         if (Input.GetKeyDown(KeyCode.D))
         {
-            timingManager.CheckTiming(0);
+            timingController.CheckTiming(0);
         }
         else if (Input.GetKeyDown(KeyCode.F))
         {
-            timingManager.CheckTiming(1);
+            timingController.CheckTiming(1);
         }
         else if (Input.GetKeyDown(KeyCode.J))
         {
-            timingManager.CheckTiming(2);
+            timingController.CheckTiming(2);
         }
         else if (Input.GetKeyDown(KeyCode.K))
         {
-            timingManager.CheckTiming(3);
+            timingController.CheckTiming(3);
         }
         else
         {

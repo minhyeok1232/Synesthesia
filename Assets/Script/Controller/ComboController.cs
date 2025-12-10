@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ComboManager : Singleton<ComboManager>
+public class ComboController : MonoBehaviour
 {
     // Animator
     [SerializeField] Animator comboAnimator = null;
@@ -14,6 +14,8 @@ public class ComboManager : Singleton<ComboManager>
 
     private void Start()
     {
+        GameManager.Instance.SetComboController(this);
+        
         txt_Combo.gameObject.SetActive(false);
         txt_Combo_Score.gameObject.SetActive(false);
     }
