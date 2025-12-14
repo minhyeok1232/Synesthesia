@@ -6,9 +6,10 @@ public class NoteController : MonoBehaviour
 {
     [SerializeField] GameObject goNote = null; // 생성할 노트 프리팹
 
-    void Start()
+    void Awake()
     {
-        GameManager.Instance.SetNoteController(this);
+        if (GameManager.Instance != null)
+            GameManager.Instance.SetNoteController(this);
     }
     
     private void OnTriggerExit2D(Collider2D collision)

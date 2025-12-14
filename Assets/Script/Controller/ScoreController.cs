@@ -14,11 +14,21 @@ public class ScoreController : MonoBehaviour
 
     [SerializeField] private float[] weight = null;
     [SerializeField] private int comboBonusScore = 10;
+
+    void Awake()
+    {
+        if (GameManager.Instance != null)
+            GameManager.Instance.SetScoreController(this);
+    }
     
     void Start()
     {
-        GameManager.Instance.SetScoreController(this);
-        
+        currentScore = 0;
+        scoreText.text = "0";
+    }
+
+    public void Initialized()
+    {
         currentScore = 0;
         scoreText.text = "0";
     }

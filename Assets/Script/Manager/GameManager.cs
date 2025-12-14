@@ -11,16 +11,53 @@ public class GameManager : Singleton<GameManager>
     private ScoreController  scoreController;
     private TimingController timingController;
     
-    
-    [SerializeField] private AudioManager  audioManager;
-    
     [Header("Scenes")]
     [SerializeField] private SceneLoader   sceneLoader;
+
+    private Song currentSong = null;
     
     void Awake()
     {
         EnsureSingleInstance();
     }
+
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.buildIndex == 1)
+            Initialized();
+    }
+    
+    
+    #region Initialized
+
+    void Initialized()
+    {
+        // 게임 시작 시 진입
+        // MusicStart -> false
+        CenterFlame.musicStart = false;
+        
+        // Score, Combo, Timing -> 초기화
+        scoreController.Initialized();
+        comboController.ResetCombo();
+        timingController.Initialized();
+        
+        //TODO 
+        //TimingManager에 있는 boxNoteList 를 Clear해주는 작업도 필요함
+        
+        
+    }
+    
+    #endregion
     
     #region Get & Set
     
@@ -48,6 +85,10 @@ public class GameManager : Singleton<GameManager>
     {
         timingController = _controller;
     }
+    public void SetCurrentSong(Song song)
+    {
+        currentSong = song;
+    }
     
     public ComboController GetComboController()
     {
@@ -70,14 +111,14 @@ public class GameManager : Singleton<GameManager>
         return timingController;
     }
 
-    public AudioManager GetAudioManager()
-    {
-        return audioManager;
-    }
-
     public SceneLoader GetSceneLoader()
     {
         return sceneLoader;
+    }
+
+    public Song GetCurrentSong()
+    {
+        return currentSong;
     }
     
     #endregion

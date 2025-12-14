@@ -14,9 +14,10 @@ public class EffectController : MonoBehaviour
 
     string hit = "Hit";
 
-    private void Start()
+    private void Awake()
     {
-        GameManager.Instance.SetEffectController(this);
+        if (GameManager.Instance != null)
+            GameManager.Instance.SetEffectController(this);
     }
 
     public void JudgementEffect(int p_num)

@@ -6,22 +6,22 @@ public class CenterFlame : MonoBehaviour
 {
     public static bool musicStart = false;
 
+    public string bgmName = "";
+    
     void Start()
     {
-
+        bgmName = GameManager.Instance.GetCurrentSong().name;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        AudioManager audioManager = GameManager.Instance.GetAudioManager();
-        
         if (!musicStart)
         {
             if (collision.CompareTag("Note"))
             {
                 musicStart = true;
-                if (audioManager != null)
-                    audioManager.PlayMusic();
+                if (SoundManager.Instance != null)
+                    SoundManager.Instance.PlayBGM(bgmName, true);
                 else
                     Debug.Log("AudioManager is Null !! ");
             }
