@@ -1086,6 +1086,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96c74cf64c6a4ac428d0747cd02c0a71, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bgmName: 
 --- !u!1 &357977974
 GameObject:
   m_ObjectHideFlags: 0
@@ -2102,6 +2103,10 @@ PrefabInstance:
       propertyPath: txt_Combo_Score
       value: 
       objectReference: {fileID: 159119157}
+    - target: {fileID: 6299649786940275753, guid: 8d08541fb4b5a5f4d878bfae9a1dd27c, type: 3}
+      propertyPath: bpm
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6299649786940275753, guid: 8d08541fb4b5a5f4d878bfae9a1dd27c, type: 3}
       propertyPath: rect.Array.size
       value: 4
@@ -3295,6 +3300,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96c74cf64c6a4ac428d0747cd02c0a71, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bgmName: 
 --- !u!1 &1106552571
 GameObject:
   m_ObjectHideFlags: 0
@@ -4308,6 +4314,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96c74cf64c6a4ac428d0747cd02c0a71, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bgmName: 
 --- !u!1 &1560295338
 GameObject:
   m_ObjectHideFlags: 0
@@ -6120,6 +6127,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96c74cf64c6a4ac428d0747cd02c0a71, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bgmName: 
 --- !u!1 &2102710075
 GameObject:
   m_ObjectHideFlags: 0

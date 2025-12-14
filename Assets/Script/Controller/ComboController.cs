@@ -12,10 +12,14 @@ public class ComboController : MonoBehaviour
     private int currentCombo = 0;
     private int maxCombo = 0;
 
+    void Awake()
+    {
+        if (GameManager.Instance != null)
+            GameManager.Instance.SetComboController(this);
+    }
+    
     private void Start()
     {
-        GameManager.Instance.SetComboController(this);
-        
         txt_Combo.gameObject.SetActive(false);
         txt_Combo_Score.gameObject.SetActive(false);
     }

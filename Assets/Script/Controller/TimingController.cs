@@ -22,11 +22,21 @@ public class TimingController : MonoBehaviour
     int[] judgementRecord = new int[5];
     
     Vector2[] timingBoxs = null; // 판정 범위 최소값 x, 최대값 y
+
+    // 임시
+    private Song song;
+    
+    void Awake()
+    {
+        if (GameManager.Instance != null)
+            GameManager.Instance.SetTimingController(this);
+
+        if (GameManager.Instance != null)
+            song = GameManager.Instance.GetCurrentSong();
+    }
     
     void Start()
     {
-        GameManager.Instance.SetTimingController(this);
-        
         timingBoxs = new Vector2[rect.Length];
         
         // 라인 별 노트 리스트 초기화
@@ -46,13 +56,20 @@ public class TimingController : MonoBehaviour
     void Update()
     {
         currentTime += Time.deltaTime;
+
+        // 예외처리
+        if (SoundManager.Instance == null)
+        {
+            Debug.Log("SoundManager is Null!!");
+            return;
+        }
         
-        float currentMusicTime = AudioManager.Instance.GetMusicTime();
-        float totalMusicLength = AudioManager.Instance.GetMusicLength();
+        float currentMusicTime = SoundManager.Instance.GetMusicTime();
+        float totalMusicLength = SoundManager.Instance.GetMusicLength();
         
         if (currentMusicTime < totalMusicLength - noteFallTime)
         {
-            if (currentTime >= 60d / bpm && !AudioManager.isMusicEnd)
+            if (currentTime >= 60d / song.bpm && !SoundManager.isMusicEnd)
             {
                 // 랜덤 패턴 
                 int randomKeyID = Random.Range(0, appear.Length);
@@ -67,9 +84,18 @@ public class TimingController : MonoBehaviour
 
                 boxNoteLists[randomKeyID].Add(note);
 
-                currentTime -= 60d / bpm; // currentTime = 0 으로 리셋해주면 안된다. 
+                currentTime -= 60d / song.bpm; // currentTime = 0 으로 리셋해주면 안된다. 
             }
         }
+        
+        if (currentMusicTime > totalMusicLength)
+            SoundManager.isMusicEnd = true;
+    }
+    
+    public void Initialized()
+    {
+        for (int i = 0; i < rect.Length; i++)
+            judgementRecord[i] = 0;
     }
     
     public int[] GetJudgementRecord()

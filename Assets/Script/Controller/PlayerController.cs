@@ -2,9 +2,10 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    void Start()
+    void Awake()
     {
-        GameManager.Instance.SetPlayerController(this);
+        if (GameManager.Instance != null)
+            GameManager.Instance.SetPlayerController(this);
     }
 
     void Update()
@@ -15,8 +16,6 @@ public class PlayerController : MonoBehaviour
     void GetKeyDown()
     {
         TimingController timingController = GameManager.Instance.GetTimingController();
-
-        Debug.Log(timingController);
         
         if (Input.GetKeyDown(KeyCode.D))
         {
