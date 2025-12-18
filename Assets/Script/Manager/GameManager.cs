@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 public class GameManager : Singleton<GameManager>
 {
@@ -14,6 +15,13 @@ public class GameManager : Singleton<GameManager>
     [Header("Scenes")]
     [SerializeField] private SceneLoader   sceneLoader;
 
+    // JSON
+    [Header("JSON Data Storage")]
+    private List<NoteInfo> noteList = new List<NoteInfo>();
+    private List<TimingPointData> timingPoints = new List<TimingPointData>();
+    
+    
+    
     private Song currentSong = null;
     
     void Awake()
@@ -60,6 +68,13 @@ public class GameManager : Singleton<GameManager>
     #endregion
     
     #region Get & Set
+    
+    public void SetParsedData(List<NoteInfo> _notes, List<TimingPointData> _tps)
+    {
+        noteList = _notes;
+        timingPoints = _tps;
+        Debug.Log($"GameManager: 데이터 수신 완료 (노트:{noteList.Count}, TP:{timingPoints.Count})");
+    }
     
     public void SetComboController(ComboController _controller)
     {
@@ -119,6 +134,16 @@ public class GameManager : Singleton<GameManager>
     public Song GetCurrentSong()
     {
         return currentSong;
+    }
+    
+    public List<NoteInfo> GetNoteList()
+    {
+        return noteList;
+    }
+
+    public List<TimingPointData> GetTimingPoints()
+    {
+        return timingPoints;
     }
     
     #endregion

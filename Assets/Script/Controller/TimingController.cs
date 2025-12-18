@@ -7,8 +7,6 @@ public class TimingController : MonoBehaviour
     // Time
     public int bpm = 0;      // 리듬게임 비트 단위. 1분당 몇 비트인지.
     double currentTime = 0d; // 리듬 게임은 오차 적은게 중요해서 float보단 double
-
-    private float noteFallTime = 5.0f; // 노트가 떨어지는 시간
     
     // GameObject
     public List<GameObject>[] boxNoteLists = null; 
@@ -33,6 +31,14 @@ public class TimingController : MonoBehaviour
 
         if (GameManager.Instance != null)
             song = GameManager.Instance.GetCurrentSong();
+    }
+
+    void OnEnable()
+    {
+        if (song != null)
+        {
+            SoundManager.Instance.PlayBGM(song.name);
+        }
     }
     
     void Start()
@@ -67,25 +73,22 @@ public class TimingController : MonoBehaviour
         float currentMusicTime = SoundManager.Instance.GetMusicTime();
         float totalMusicLength = SoundManager.Instance.GetMusicLength();
         
-        if (currentMusicTime < totalMusicLength - noteFallTime)
+        if (currentTime >= 60d / song.bpm && !SoundManager.isMusicEnd)
         {
-            if (currentTime >= 60d / song.bpm && !SoundManager.isMusicEnd)
-            {
-                // 랜덤 패턴 
-                int randomKeyID = Random.Range(0, appear.Length);
+            // 랜덤 패턴 
+            int randomKeyID = Random.Range(0, appear.Length);
 
-                // ObjectPool에서 해당 라인의 큐를 사용하여 노트를 가져옵니다.
-                GameObject note = ObjectPool.instance.GetNote(randomKeyID);
+            // ObjectPool에서 해당 라인의 큐를 사용하여 노트를 가져옵니다.
+            GameObject note = ObjectPool.instance.GetNote(randomKeyID);
 
-                note.GetComponent<Note>().SetLineID(randomKeyID); // 몇번 째 키 ID 저장
+            note.GetComponent<Note>().SetLineID(randomKeyID); // 몇번 째 키 ID 저장
 
-                note.transform.position = appear[randomKeyID].position;
-                note.SetActive(true);
+            note.transform.position = appear[randomKeyID].position;
+            note.SetActive(true);
 
-                boxNoteLists[randomKeyID].Add(note);
+            boxNoteLists[randomKeyID].Add(note);
 
-                currentTime -= 60d / song.bpm; // currentTime = 0 으로 리셋해주면 안된다. 
-            }
+            currentTime -= 60d / song.bpm; // currentTime = 0 으로 리셋해주면 안된다. 
         }
         
         if (currentMusicTime > totalMusicLength)
