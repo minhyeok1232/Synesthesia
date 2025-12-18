@@ -1,6 +1,8 @@
 using System;
+using System.IO;
 using UnityEngine;
 using System.Collections;
+using UnityEngine.Networking;
 
 [System.Serializable]
 public class Sound
@@ -35,7 +37,7 @@ public class SoundManager : Singleton<SoundManager>
         }
     }
     
-    public void PlayBGM(string bgmName, bool playing = false)
+    public void PlayBGM(string bgmName, int startTimeMs = 0, bool playing = false)
     {
         if (!playing)
         {
@@ -44,6 +46,7 @@ public class SoundManager : Singleton<SoundManager>
                 if (bgm[i].name == bgmName)
                 {
                     bgmPlayer.clip = bgm[i].clip;
+                    bgmPlayer.time = startTimeMs / 1000f; 
                     bgmPlayer.Play();
                 }
             }
@@ -93,8 +96,10 @@ public class SoundManager : Singleton<SoundManager>
     // 완전 정지
     public void StopBGM()
     {
-        CenterFlame.musicStart = false;
+        if (CenterFlame.musicStart)
+            CenterFlame.musicStart = false;
 
+        bgmPlayer.clip = null;
         bgmPlayer.Stop();
     }
     
@@ -125,4 +130,65 @@ public class SoundManager : Singleton<SoundManager>
         if(bgmPlayer == null || bgmPlayer.clip == null) return 0;
         return bgmPlayer.clip.length; 
     }
+    
+    #region [외부 음악 로드] - StreamingAssets 폴더에서 MP3 파일을 비동기로 들고옴
+    public IEnumerator LoadBGMFromStreamingAssets(string songName)
+    {
+        for (int i = 0; i < bgm.Length; i++)
+        {
+            if (bgm[i].name == songName && bgm[i].clip != null)
+            {
+                yield break;
+            }
+        }
+
+        // 각 노래의 제목에 맞는 폴더명 설정 (경로 : Asset/StreamingAssets/노래제목/) 
+        string path = "file://" + Path.Combine(Application.streamingAssetsPath, songName, "audio.mp3");
+
+        using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(path, AudioType.MPEG))
+        {
+            Debug.Log($"[로드 시작] 시도 중인 경로: {path}");
+
+            yield return www.SendWebRequest();
+            
+            if (www.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError($"[로드 실패] 에러 내용: {www.error}");
+                Debug.LogError($"[참고] 응답 코드: {www.responseCode}");
+            }
+            else
+            {
+                Debug.Log("[로드 성공] 파일을 정상적으로 가져왔습니다.");
+
+                AudioClip clip = DownloadHandlerAudioClip.GetContent(www);
+        
+                if (clip == null)
+                {
+                    Debug.LogError("[데이터 오류] AudioClip을 생성하지 못했습니다. 파일이 깨졌거나 형식이 다를 수 있습니다.");
+                }
+                else
+                {
+                    clip.name = songName;
+                    bool isAssigned = false;
+                    
+                    for (int i = 0; i < bgm.Length; i++)
+                    {
+                        if (bgm[i].name == songName)
+                        {
+                            bgm[i].clip = clip;
+                            Debug.Log($"[매칭 성공] SoundManager의 bgm[{i}] 슬롯에 {songName} 할당 완료!");
+                            isAssigned = true;
+                            break;
+                        }
+                    }
+
+                    if (!isAssigned)
+                    {
+                        Debug.LogWarning($"[매칭 실패] SoundManager bgm 배열에서 '{songName}'이라는 이름을 찾을 수 없습니다. 인스펙터를 확인하세요.");
+                    }
+                }
+            }
+        }
+    }
+    #endregion
 }
