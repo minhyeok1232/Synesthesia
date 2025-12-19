@@ -43,7 +43,7 @@ public class ObjectPool : MonoBehaviour
         Queue<GameObject> queue = new Queue<GameObject>();
         for (int i = 0; i < _objectInfo.count; i++)
         {
-            GameObject clone = Instantiate(_objectInfo.prefab, transform.position, Quaternion.Euler(0, 0, 90));
+            GameObject clone = Instantiate(_objectInfo.prefab, transform.position, Quaternion.identity);
             clone.SetActive(false);
             if (_objectInfo.parent != null)
                 clone.transform.SetParent(_objectInfo.parent, false);

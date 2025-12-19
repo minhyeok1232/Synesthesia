@@ -15,14 +15,16 @@ public class TimingController : MonoBehaviour
     [SerializeField] Transform[] appear = null; // 노트 생성 위치 오브젝트
     [SerializeField] Transform[] center = null; // 판정 범위의 중심
     [SerializeField] RectTransform[] rect = null; // 다양한 판정 범위
-    [SerializeField] private Transform[] notes = null; // 노트를 관리하는 게임오브젝트
     
     int[] judgementRecord = new int[5];
     
     Vector2[] timingBoxs = null; // 판정 범위 최소값 x, 최대값 y
-
-    // 임시
+    
     private Song song;
+    
+    
+    private List<NoteInfo> notes; // 전체 노트
+    private int noteIndex = 0;    // 노트 인덱스
     
     void Awake()
     {
@@ -43,7 +45,7 @@ public class TimingController : MonoBehaviour
     
     void Start()
     {
-        timingBoxs = new Vector2[rect.Length];
+        timingBoxs = new Vector2[rect.Length]; // timingBoxs[4]
         
         // 라인 별 노트 리스트 초기화
         boxNoteLists = new List<GameObject>[appear.Length];
@@ -61,44 +63,37 @@ public class TimingController : MonoBehaviour
 
     void Update()
     {
-        currentTime += Time.deltaTime;
-
-        // 예외처리
-        if (SoundManager.Instance == null)
+        if (!GameManager.Instance.MusicStart || notes == null) return;
+        
+        // ms 단위 -> 음악 시간 가져오기
+        float currentTime = SoundManager.Instance.GetMusicTime() * 1000f;
+        
+        while (noteIndex < notes.Count)
         {
-            Debug.Log("SoundManager is Null!!");
-            return;
+            // (현재 시간 + 미리 보여줄 시간)이 노트의 시작 시간보다 크면 소환!
+            if (currentTime + 1000 >= notes[noteIndex].startTime)
+            {
+                SpawnNote(notes[noteIndex]);
+                noteIndex++; // 다음 노트로 번호표 넘김
+            }
+            else
+                break;
         }
-        
-        float currentMusicTime = SoundManager.Instance.GetMusicTime();
-        float totalMusicLength = SoundManager.Instance.GetMusicLength();
-        
-        if (currentTime >= 60d / song.bpm && !SoundManager.isMusicEnd)
-        {
-            // 랜덤 패턴 
-            int randomKeyID = Random.Range(0, appear.Length);
-
-            // ObjectPool에서 해당 라인의 큐를 사용하여 노트를 가져옵니다.
-            GameObject note = ObjectPool.instance.GetNote(randomKeyID);
-
-            note.GetComponent<Note>().SetLineID(randomKeyID); // 몇번 째 키 ID 저장
-
-            note.transform.position = appear[randomKeyID].position;
-            note.SetActive(true);
-
-            boxNoteLists[randomKeyID].Add(note);
-
-            currentTime -= 60d / song.bpm; // currentTime = 0 으로 리셋해주면 안된다. 
-        }
-        
-        if (currentMusicTime > totalMusicLength)
-            SoundManager.isMusicEnd = true;
     }
     
     public void Initialized()
     {
+        notes = GameManager.Instance.GetNoteList();
+        noteIndex = 0;
+        
         for (int i = 0; i < rect.Length; i++)
             judgementRecord[i] = 0;
+    }
+    
+    // 각 노트의 정의는 NoteController 에 위임한다.
+    void SpawnNote(NoteInfo info)
+    {
+        GameManager.Instance.GetNoteController().CreateNote(info);
     }
     
     public int[] GetJudgementRecord()
@@ -123,6 +118,7 @@ public class TimingController : MonoBehaviour
         for(int i = 0; i < currentLineNotes.Count; i++)
         {
             float t_notePosY = currentLineNotes[i].transform.localPosition.y;
+            Note note = currentLineNotes[i].GetComponent<Note>();
             
             // 판정 순서 : Perfect -> Cool -> Good -> Bad
             for (int j = 0; j < timingBoxs.Length; j++)
@@ -156,5 +152,43 @@ public class TimingController : MonoBehaviour
         MissRecord();
         comboController.ResetCombo();
         effectController.JudgementEffect(timingBoxs.Length);
+    }
+    
+    // 롱노트 - 키를 누르고 있는 동안
+    public void CheckLongNoteHolding(int keyID)
+    {
+        if (boxNoteLists[keyID].Count > 0)
+        {
+            Note note = boxNoteLists[keyID][0].GetComponent<Note>();
+        
+            // 롱노트이고 현재 성공적으로 누르고 있는 상태라면
+            if (note.info.isLongNote && note.isHolding)
+            {
+                // 1. 비주얼 업데이트 (노트가 판정선에서 타 들어가는 연출)
+                note.UpdateLongNoteLife(); 
+            
+                // 2. 틱 콤보 (일정 시간마다 콤보 상승 로직은 여기서 실행)
+                // GameManager.Instance.AddCombo(); (원하는 주기마다 실행되도록 처리)
+            }
+        }
+    }
+
+    // 롱노트 - 키를 떼었을 때 호출
+    public void CheckLongNoteEnd(int lane)
+    {
+        if (boxNoteLists[lane].Count > 0)
+        {
+            Note note = boxNoteLists[lane][0].GetComponent<Note>();
+        
+            if (note.info.isLongNote && note.isHolding)
+            {
+                // 판정 시간(endTime) 이전에 너무 빨리 뗐는지 체크
+                // 만약 너무 일찍 뗐다면 Miss 처리, 아니면 완료 처리
+                note.isHolding = false;
+            
+                // 처리 완료 후 리스트에서 제거 및 파괴/반환
+                DestroyNote(lane, boxNoteLists[lane][0]);
+            }
+        }
     }
 }

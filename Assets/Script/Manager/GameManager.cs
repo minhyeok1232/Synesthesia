@@ -23,6 +23,13 @@ public class GameManager : Singleton<GameManager>
     
     
     private Song currentSong = null;
+
+    private bool musicStart = false;
+    public bool MusicStart 
+    {
+        get { return musicStart; }
+        set { musicStart = value; }
+    }
     
     void Awake()
     {
@@ -52,7 +59,7 @@ public class GameManager : Singleton<GameManager>
     {
         // 게임 시작 시 진입
         // MusicStart -> false
-        CenterFlame.musicStart = false;
+        musicStart = true;
         
         // Score, Combo, Timing -> 초기화
         scoreController.Initialized();

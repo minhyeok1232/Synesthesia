@@ -17,25 +17,27 @@ public class PlayerController : MonoBehaviour
     {
         TimingController timingController = GameManager.Instance.GetTimingController();
         
-        if (Input.GetKeyDown(KeyCode.D))
+        KeyCode[] keys = { KeyCode.D, KeyCode.F, KeyCode.J, KeyCode.K };
+
+        for (int i = 0; i < keys.Length; i++)
         {
-            timingController.CheckTiming(0);
-        }
-        else if (Input.GetKeyDown(KeyCode.F))
-        {
-            timingController.CheckTiming(1);
-        }
-        else if (Input.GetKeyDown(KeyCode.J))
-        {
-            timingController.CheckTiming(2);
-        }
-        else if (Input.GetKeyDown(KeyCode.K))
-        {
-            timingController.CheckTiming(3);
-        }
-        else
-        {
-            
+            // 1. 키를 처음 눌렀을 때 (단타 판정 및 롱노트 시작)
+            if (Input.GetKeyDown(keys[i]))
+            {
+                timingController.CheckTiming(i);
+            }
+        
+            // 2. 키를 떼었을 때 (롱노트 끝 판정)
+            if (Input.GetKeyUp(keys[i]))
+            {
+                timingController.CheckLongNoteEnd(i);
+            }
+
+            // 3. 키를 꾹 누르고 있는 동안 (콤보 상승 및 비주얼 처리)
+            if (Input.GetKey(keys[i]))
+            {
+                timingController.CheckLongNoteHolding(i);
+            }
         }
     }
 }

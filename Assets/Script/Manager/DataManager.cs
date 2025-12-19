@@ -2,12 +2,14 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
 
-[System.Serializable] // 유니티 인스펙터 창에서 확인 가능하게 함
+[System.Serializable]
 public struct NoteInfo {
-    public int lane;        // 0, 1, 2, 3 레인
-    public int startTime;   // 시작 시간 (ms)
-    public int endTime;     // 종료 시간 (ms) - 일반 노트는 startTime과 같음
-    public bool isLongNote; // 롱노트 여부
+    public int lane;            // 0, 1, 2, 3번 레인 (x좌표 64, 192, 320, 448 기반)
+    public int startTime;       // 판정선에 닿아야 하는 시간 (ms)
+    public int endTime;         // 롱노트가 끝나는 시간 (ms) - 일반 노트는 startTime과 동일
+    public bool isLongNote;     // 128 타입인지 확인용
+    public string hitSoundFile; // kick1.wav 같은 개별 샘플 이름
+    public int volume;          // 0~100 사이의 개별 노트 볼륨
 }
 
 [System.Serializable]
@@ -92,24 +94,36 @@ public class DataManager : Singleton<DataManager> {
 
     void ParseHitObject(string line) {
         string[] data = line.Split(',');
-        // 오수 매니아 포맷: x, y, time, type, hitSound, objectParams...
-        
-        int x = int.Parse(data[0]);
-        int time = int.Parse(data[2]);
-        int type = int.Parse(data[3]);
+        if (data.Length < 5) return;
 
         NoteInfo note = new NoteInfo();
-        note.startTime = time;
-        // 4키 기준 레인 계산: (x * 4 / 512)
+
+        // 1. 레인 계산 (x좌표 기반)
+        int x = int.Parse(data[0]);
         note.lane = Mathf.Clamp(x * 4 / 512, 0, 3);
 
-        // 롱노트 여부 확인 (오수에서 type 128이 롱노트)
-        if ((type & 128) != 0) {
-            note.isLongNote = true;
-            note.endTime = int.Parse(data[5].Split(':')[0]);
+        // 2. 시작 시간
+        note.startTime = int.Parse(data[2]);
+
+        // 3. 타입 분석 (1=단타, 128=롱노트)
+        int type = int.Parse(data[3]);
+        note.isLongNote = (type & 128) != 0;
+
+        // 4. 롱노트 여부에 따른 종료 시간 및 사운드 파일 파싱
+        if (note.isLongNote) {
+            // 롱노트 데이터 예: "8981:0:0:0:40:kick1.wav"
+            string[] extraData = data[5].Split(':');
+            note.endTime = int.Parse(extraData[0]); // 첫 번째 값이 종료 시간
+        
+            if (extraData.Length > 5) 
+                note.hitSoundFile = extraData[5];
         } else {
-            note.isLongNote = false;
-            note.endTime = time;
+            // 일반 노트 데이터 예: "0:0:0:40:kick1.wav"
+            note.endTime = note.startTime;
+        
+            string[] extraData = data[5].Split(':');
+            if (extraData.Length > 4) 
+                note.hitSoundFile = extraData[4];
         }
 
         noteList.Add(note);
