@@ -31,9 +31,13 @@ public class SoundManager : Singleton<SoundManager>
     }
     void Update()
     {
-        if (CenterFlame.musicStart && !bgmPlayer.isPlaying && isMusicEnd && !isPaused)
+        if (GameManager.Instance.MusicStart && !isPaused)
         {
-            EndMusic();
+            if (!bgmPlayer.isPlaying && isMusicEnd)
+            {
+                EndMusic();
+                isMusicEnd = false; // 중복 실행 방지
+            }
         }
     }
     
@@ -96,8 +100,8 @@ public class SoundManager : Singleton<SoundManager>
     // 완전 정지
     public void StopBGM()
     {
-        if (CenterFlame.musicStart)
-            CenterFlame.musicStart = false;
+        if (GameManager.Instance.MusicStart)
+            GameManager.Instance.MusicStart = false;
 
         bgmPlayer.clip = null;
         bgmPlayer.Stop();
