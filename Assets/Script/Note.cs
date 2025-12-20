@@ -99,6 +99,10 @@ public class Note : MonoBehaviour
         float ratio = (startTime - currentTime) / fallTime;
         
         transform.localPosition = targetPos + (startPos - targetPos) * ratio;
+        
+        if (transform.localPosition.y < -5000f) {
+            HideNote();
+        }
     }
 
     public bool GetNoteFlag()
