@@ -1587,7 +1587,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1158658481853399881, guid: 9d4138a7fe770414db89d72c84272ad7, type: 3}
       propertyPath: fileName
-      value: test.osu
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 3395396547046671663, guid: 9d4138a7fe770414db89d72c84272ad7, type: 3}
       propertyPath: m_LocalPosition.x
