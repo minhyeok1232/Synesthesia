@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class Note : MonoBehaviour
 {
+    public NoteInfo info;
+    
     private int lineID = -1; // 라인 ID
     private Image noteImage;
     private bool isInitialized = false;
@@ -14,6 +16,8 @@ public class Note : MonoBehaviour
     private Vector3 targetPos;
 
     private float startTime;
+    
+    public bool isHolding = false;
     
     void OnEnable()
     {
@@ -25,12 +29,16 @@ public class Note : MonoBehaviour
     
     public void Setup(NoteInfo info, float _fallTime, Vector3 _startPos, Vector3 _targetPos)
     {
+        this.info = info;
+        
         lineID = info.lane;
         startTime = info.startTime;
         
         fallTime = _fallTime;
         startPos = _startPos;
         targetPos = _targetPos;
+
+        SetNormalInitializeNote(info);
         
         if (info.isLongNote)
         {
@@ -38,6 +46,21 @@ public class Note : MonoBehaviour
         }
         
         isInitialized = true;
+    }
+
+    void SetNormalInitializeNote(NoteInfo info)
+    {
+        // 일반 노트와 롱노트는 같은 메모리 풀링을 하므로, 다시 꺼내올 때 이전의 롱노트로 반환될 수 있으므로 초기화
+        RectTransform rect = GetComponent<RectTransform>();
+        rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.sizeDelta = GetComponent<RectTransform>().sizeDelta = new Vector2(rect.sizeDelta.x, 50f);
+        
+        BoxCollider2D collider = GetComponent<BoxCollider2D>();
+        if (collider != null)
+        {
+            collider.size = new Vector2(rect.sizeDelta.x, 50f);
+            collider.offset = new Vector2(0, 50f / 2); // 피봇이 바닥이므로 센터를 위로 올림
+        }
     }
 
     // 롱노트는 일반노트의 y값을 늘려준다.
@@ -76,8 +99,6 @@ public class Note : MonoBehaviour
         float ratio = (startTime - currentTime) / fallTime;
         
         transform.localPosition = targetPos + (startPos - targetPos) * ratio;
-        
-        if (ratio < -0.2f) HideNote();
     }
 
     public bool GetNoteFlag()

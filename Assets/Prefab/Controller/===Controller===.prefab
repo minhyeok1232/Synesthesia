@@ -226,7 +226,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b450ba5eddafbb24ab1a0d8d26c2ea89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  goNote: {fileID: 0}
+  notePrefab: {fileID: 0}
+  startPositions: []
+  endPositions: []
+  noteFallTime: 1000
 --- !u!1 &6821718575015264173
 GameObject:
   m_ObjectHideFlags: 0
@@ -328,4 +331,3 @@ MonoBehaviour:
   appear: []
   center: []
   rect: []
-  notes: []

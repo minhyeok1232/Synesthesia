@@ -39,7 +39,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -128.23685, y: -521.1207}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 128, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1695446856441565153
@@ -92,6 +92,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eaebc04c13c5e284fbf36d9c1f3e8050, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  info:
+    lane: 0
+    startTime: 0
+    endTime: 0
+    isLongNote: 0
+    hitSoundFile: 
+    volume: 0
+  isHolding: 0
 --- !u!61 &-7924204707002877835
 BoxCollider2D:
   m_ObjectHideFlags: 0

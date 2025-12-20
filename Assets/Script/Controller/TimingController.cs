@@ -8,6 +8,10 @@ public class TimingController : MonoBehaviour
     public int bpm = 0;      // 리듬게임 비트 단위. 1분당 몇 비트인지.
     double currentTime = 0d; // 리듬 게임은 오차 적은게 중요해서 float보단 double
     
+    // Long Note Tick 
+    private float comboTickTimer = 0f;
+    private const float comboTickInterval = 0.1f;
+    
     // GameObject
     public List<GameObject>[] boxNoteLists = null; 
 
@@ -22,6 +26,8 @@ public class TimingController : MonoBehaviour
     
     private Song song;
     
+    // 임시
+    private int count = 0;
     
     private List<NoteInfo> notes; // 전체 노트
     private int noteIndex = 0;    // 노트 인덱스
@@ -79,6 +85,41 @@ public class TimingController : MonoBehaviour
             else
                 break;
         }
+        
+        for (int i = 0; i < boxNoteLists.Length; i++)
+        {
+            if (boxNoteLists[i].Count > 0)
+            {
+                GameObject targetNoteObj = boxNoteLists[i][0];
+                Note note = targetNoteObj.GetComponent<Note>();
+                float t_notePosY = targetNoteObj.transform.localPosition.y;
+
+                // Bad 하단 영역 timingBoxs[3].x
+                float missLine = timingBoxs[3].x;
+
+                // 1. 영역을 벗어나는 즉시 Miss 판정
+                if (!note.isHolding && t_notePosY < missLine)
+                {
+                    MissRecord();
+                    GameManager.Instance.GetComboController().ResetCombo();
+                    GameManager.Instance.GetEffectController().JudgementEffect(4); // Miss 인덱스
+                
+                    boxNoteLists[i].RemoveAt(0);
+                    
+                    // 일반 노트는 여기서 바로 제거 가능
+                    if (!note.info.isLongNote)
+                    {
+                        note.HideNote();
+                    }
+                }
+                
+                if (note.info.isLongNote && t_notePosY < -3000f)
+                {
+                    note.isHolding = false;
+                    note.HideNote();
+                }
+            }
+        }
     }
     
     public void Initialized()
@@ -93,6 +134,8 @@ public class TimingController : MonoBehaviour
     // 각 노트의 정의는 NoteController 에 위임한다.
     void SpawnNote(NoteInfo info)
     {
+        Debug.Log("count : " + count);
+        count++;
         GameManager.Instance.GetNoteController().CreateNote(info);
     }
     
@@ -103,7 +146,6 @@ public class TimingController : MonoBehaviour
 
     public void MissRecord()
     {
-        Debug.Log("Miss");
         judgementRecord[4]++;  // Miss의 판정 기록
     }
     
@@ -125,33 +167,23 @@ public class TimingController : MonoBehaviour
             {
                 if (timingBoxs[j].x <= t_notePosY && t_notePosY <= timingBoxs[j].y)
                 {
-                    // 노트 제거
-                    currentLineNotes[i].GetComponent<Note>().HideNote();
-                    currentLineNotes.RemoveAt(i);
-                    
-                    // 이펙트 연출
-                    if (j < timingBoxs.Length - 1)
+                    if (note.info.isLongNote)
                     {
-                        effectController.NoteHitEffect(keyID);
-                        scoreController.AnimPlayScore();
+                        note.isHolding = true; 
+                        HandleJudgement(j, keyID);
                     }
-    
-                    effectController.JudgementEffect(j);
-                    scoreController.IncreaseScore(j);
-                    judgementRecord[j]++;  // 판정 기록
+                    else
+                    {
+                        // 노트 제거
+                        note.HideNote();
+                        currentLineNotes.RemoveAt(i);
+                        HandleJudgement(j, keyID);
+                    }
 
-                    if (j == 3)
-                    {
-                        comboController.ResetCombo();
-                    }
                     return;
                 }
             }
         }
-        
-        MissRecord();
-        comboController.ResetCombo();
-        effectController.JudgementEffect(timingBoxs.Length);
     }
     
     // 롱노트 - 키를 누르고 있는 동안
@@ -160,35 +192,67 @@ public class TimingController : MonoBehaviour
         if (boxNoteLists[keyID].Count > 0)
         {
             Note note = boxNoteLists[keyID][0].GetComponent<Note>();
-        
-            // 롱노트이고 현재 성공적으로 누르고 있는 상태라면
+
             if (note.info.isLongNote && note.isHolding)
             {
-                // 1. 비주얼 업데이트 (노트가 판정선에서 타 들어가는 연출)
-                note.UpdateLongNoteLife(); 
-            
-                // 2. 틱 콤보 (일정 시간마다 콤보 상승 로직은 여기서 실행)
-                // GameManager.Instance.AddCombo(); (원하는 주기마다 실행되도록 처리)
+                // note.UpdateLongNoteLife();
+                comboTickTimer += Time.deltaTime;
+                
+                if (comboTickTimer >= comboTickInterval)
+                {
+                    // 콤보 및 점수 추가
+                    GameManager.Instance.GetComboController().IncreaseCombo();
+                    GameManager.Instance.GetScoreController().IncreaseScore(0);
+                    
+                    comboTickTimer -= comboTickInterval; 
+                }
             }
         }
     }
 
     // 롱노트 - 키를 떼었을 때 호출
-    public void CheckLongNoteEnd(int lane)
+    public void CheckLongNoteEnd(int keyID)
     {
-        if (boxNoteLists[lane].Count > 0)
+        if (boxNoteLists[keyID].Count > 0)
         {
-            Note note = boxNoteLists[lane][0].GetComponent<Note>();
-        
+            Note note = boxNoteLists[keyID][0].GetComponent<Note>();
+    
             if (note.info.isLongNote && note.isHolding)
             {
-                // 판정 시간(endTime) 이전에 너무 빨리 뗐는지 체크
-                // 만약 너무 일찍 뗐다면 Miss 처리, 아니면 완료 처리
                 note.isHolding = false;
+                
+                float currentTime = SoundManager.Instance.GetMusicTime() * 1000f;
             
-                // 처리 완료 후 리스트에서 제거 및 파괴/반환
-                DestroyNote(lane, boxNoteLists[lane][0]);
+                // 너무 일찍 뗐을 때 (예: 종료 100ms 전보다 더 빨리 뗌)
+                if (currentTime < note.info.endTime - 100f) 
+                {
+                    // Miss 처리
+                    GameManager.Instance.GetComboController().ResetCombo();
+                    GameManager.Instance.GetEffectController().JudgementEffect(4); // Miss
+                    MissRecord();
+                }
+                
+                boxNoteLists[keyID].RemoveAt(0);
             }
         }
+    }
+    
+    // 판정 연출 분리
+    private void HandleJudgement(int judgeIndex, int keyID)
+    {
+        EffectController effectController = GameManager.Instance.GetEffectController();
+        ComboController comboController = GameManager.Instance.GetComboController();
+        ScoreController scoreController = GameManager.Instance.GetScoreController();
+
+        if (judgeIndex < timingBoxs.Length - 1)
+        {
+            effectController.NoteHitEffect(keyID);
+            scoreController.AnimPlayScore();
+        }
+        effectController.JudgementEffect(judgeIndex);
+        scoreController.IncreaseScore(judgeIndex);
+        judgementRecord[judgeIndex]++;
+
+        if (judgeIndex == 3) comboController.ResetCombo();
     }
 }
