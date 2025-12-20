@@ -66,26 +66,15 @@ public class SoundManager : Singleton<SoundManager>
     
     public void PlaySFX(string p_sfxName)
     {
-        // for (int i = 0; i < sfx.Length; i++)
-        // {
-        //     if (p_sfxName == sfx[i].name)
-        //     {
-        //         for (int j = 0; j < sfxPlayer.Length; j++)
-        //         {
-        //             // SFXPlayer에서 재생 중이지 않은 Audio Source를 발견했다면 
-        //             if (!sfxPlayer[j].isPlaying)
-        //             {
-        //                 sfxPlayer[j].clip = sfx[i].clip;
-        //                 sfxPlayer[j].Play();
-        //                 return;
-        //             }
-        //         }
-        //         Debug.Log("모든 오디오 플레이어가 재생중입니다.");
-        //         return;
-        //     }
-        // }
-        // Debug.Log(p_sfxName + " 이름의 효과음이 없습니다.");
-        // return;
+        for (int i = 0; i < sfx.Length; i++)
+        {
+            if (sfx[i].name == p_sfxName && sfx[i].clip != null)
+            {
+                // PlayOneShot을 쓰면 하나의 AudioSource에서 여러 소리가 겹쳐서 나옵니다. (리듬게임 필수)
+                sfxPlayer.PlayOneShot(sfx[i].clip);
+                return;
+            }
+        }
     }
     
     // 환경 설정 -> 일시 정지
@@ -137,7 +126,7 @@ public class SoundManager : Singleton<SoundManager>
         return bgmPlayer.clip.length; 
     }
     
-    #region [외부 음악 로드] - StreamingAssets 폴더에서 MP3 파일을 비동기로 들고옴
+    #region [외부 음악 로드] - StreamingAssets 폴더에서 MP3, wav 파일을 비동기로 들고옴
     public IEnumerator LoadBGMFromStreamingAssets(string songName)
     {
         for (int i = 0; i < bgm.Length; i++)
@@ -192,6 +181,54 @@ public class SoundManager : Singleton<SoundManager>
                     {
                         Debug.LogWarning($"[매칭 실패] SoundManager bgm 배열에서 '{songName}'이라는 이름을 찾을 수 없습니다. 인스펙터를 확인하세요.");
                     }
+                }
+            }
+        }
+    }
+    
+    public IEnumerator LoadAllSFXFromFolder(string songName)
+    {
+        // 1. StreamingAssets 내 곡 전용 폴더 경로 설정
+        string folderPath = Path.Combine(Application.streamingAssetsPath, songName);
+    
+        if (!Directory.Exists(folderPath))
+        {
+            Debug.LogError($"[SFX 로드 실패] 폴더가 없습니다: {folderPath}");
+            yield break;
+        }
+
+        // 2. 폴더 내의 모든 .wav 파일 목록 추출
+        string[] filePaths = Directory.GetFiles(folderPath, "*.wav");
+
+        // 3. 찾은 파일 개수만큼 Sound 배열 재설정 (이미지의 Sfx 배열 크기가 바뀝니다)
+        sfx = new Sound[filePaths.Length];
+
+        for (int i = 0; i < filePaths.Length; i++)
+        {
+            string fullPath = filePaths[i];
+            string fileName = Path.GetFileNameWithoutExtension(fullPath); // 확장자 제외 이름
+            string webPath = "file://" + fullPath;
+
+            // 4. AudioType.WAV를 사용하여 로드
+            using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(webPath, AudioType.WAV))
+            {
+                yield return www.SendWebRequest();
+
+                if (www.result == UnityWebRequest.Result.Success)
+                {
+                    AudioClip clip = DownloadHandlerAudioClip.GetContent(www);
+                    clip.name = fileName;
+
+                    // 인스펙터 구조에 맞게 Sound 객체 생성
+                    sfx[i] = new Sound {
+                        name = fileName, // 나중에 PlaySFX("ride2") 처럼 찾을 이름
+                        clip = clip
+                    };
+                    Debug.Log($"[SFX 로드 완료] {fileName}.wav");
+                }
+                else
+                {
+                    Debug.LogError($"[SFX 에러] {fileName} 로드 실패: {www.error}");
                 }
             }
         }

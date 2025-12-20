@@ -187,6 +187,7 @@ public class TimingController : MonoBehaviour
                 if (noteTopY < missLine)
                 {
                     note.isHolding = false;
+                    GameManager.Instance.GetEffectController()?.GetEffect("Up", 0);
                     boxNoteLists[keyID].RemoveAt(0);
                     // 롱노트를 정상적으로 다 처리했으므로 여기서 필요한 종료 연출 호출
                     return;

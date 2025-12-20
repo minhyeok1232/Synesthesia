@@ -63,7 +63,7 @@ public class DataManager : Singleton<DataManager> {
     {
         // 경로 : Assets/StreamingAssets/곡이름/
         string folderPath = Path.Combine(Application.streamingAssetsPath, songName);
-        string fullPath = Path.Combine(folderPath, "test.osu"); 
+        string fullPath = Path.Combine(folderPath, "siromaru + cranky - conflict (shizehao) [Easy].osu"); 
 
         Debug.Log($"[파싱 시도] 전체 경로: {fullPath}");
         
@@ -94,7 +94,7 @@ public class DataManager : Singleton<DataManager> {
 
     void ParseHitObject(string line) {
         string[] data = line.Split(',');
-        if (data.Length < 5) return;
+        if (data.Length < 6) return; // 데이터 안정성을 위해 6개로 체크
 
         NoteInfo note = new NoteInfo();
 
@@ -109,24 +109,41 @@ public class DataManager : Singleton<DataManager> {
         int type = int.Parse(data[3]);
         note.isLongNote = (type & 128) != 0;
 
-        // 4. 롱노트 여부에 따른 종료 시간 및 사운드 파일 파싱
+        // 4. 사운드 파일 및 종료 시간 파싱
+        string rawSoundData = data[5];
+        string[] extraData = rawSoundData.Split(':');
+
         if (note.isLongNote) 
         {
-            // 롱노트 데이터 예: "8981:0:0:0:40:kick1.wav"
-            string[] extraData = data[5].Split(':');
+            // 롱노트 예: 448,192,2981,128,0,8981:0:0:0:40:kick1.wav
             note.endTime = int.Parse(extraData[0]); // 첫 번째 값이 종료 시간
         
             if (extraData.Length > 5) 
-                note.hitSoundFile = extraData[5];
+            {
+                // 확장자(.wav)를 제외한 이름만 추출 (예: kick1)
+                note.hitSoundFile = Path.GetFileNameWithoutExtension(extraData[5]);
+                // 볼륨 값도 있다면 저장 (추가 데이터 4번째 인덱스)
+                if(int.TryParse(extraData[4], out int vol)) note.volume = vol;
+            }
         } 
         else 
         {
-            // 일반 노트 데이터 예: "0:0:0:40:kick1.wav"
+            // 일반 노트 예: 64,192,2981,1,0,0:0:0:40:kick1.wav
             note.endTime = note.startTime;
         
-            string[] extraData = data[5].Split(':');
             if (extraData.Length > 4) 
-                note.hitSoundFile = extraData[4];
+            {
+                // 확장자(.wav)를 제외한 이름만 추출 (예: kick1)
+                note.hitSoundFile = Path.GetFileNameWithoutExtension(extraData[4]);
+                // 볼륨 값 저장
+                if(int.TryParse(extraData[3], out int vol)) note.volume = vol;
+            }
+        }
+
+        // 만약 파일명이 비어있다면 디버그 로그 출력 (추적용)
+        if (string.IsNullOrEmpty(note.hitSoundFile))
+        {
+            // Debug.LogWarning($"[알림] {note.startTime}ms 노드의 개별 사운드가 없습니다. 기본음을 사용합니다.");
         }
 
         noteList.Add(note);

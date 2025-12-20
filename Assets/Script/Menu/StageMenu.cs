@@ -86,10 +86,10 @@ public class StageMenu : MonoBehaviour
         string songName = songList[currentSong].name;
         int previewTime = songList[currentSong].previewTime;
 
-        // 1. StreamingAssets 폴더에서 Mp3 파일을 비동기로 들고 옴.
+        // StreamingAssets 폴더에서 Mp3, wav 파일을 비동기로 들고 옴.
         yield return StartCoroutine(SoundManager.Instance.LoadBGMFromStreamingAssets(songName));
-
-        // 2. 재생
+        SoundManager.Instance.StartCoroutine(SoundManager.Instance.LoadAllSFXFromFolder(songName));
+        
         SoundManager.Instance.PlayBGM(songName, previewTime);
     }
     
