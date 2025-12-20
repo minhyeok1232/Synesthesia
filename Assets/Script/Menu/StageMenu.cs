@@ -105,6 +105,8 @@ public class StageMenu : MonoBehaviour
     {
         this.gameObject.SetActive(false); // 스테이지 비활
         
+        GameManager.Instance.CurrentState = MusicState.Ready;
+        
         SceneLoader sceneLoader = GameManager.Instance.GetSceneLoader();
         sceneLoader?.ChangeScene(1); // GameScene
         

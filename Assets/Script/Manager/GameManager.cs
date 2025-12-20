@@ -1,6 +1,16 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using System;
+
+public enum MusicState
+{
+    None,    
+    Ready,   
+    Playing, 
+    Paused,  
+    Finished 
+}
 
 public class GameManager : Singleton<GameManager>
 {
@@ -20,15 +30,18 @@ public class GameManager : Singleton<GameManager>
     private List<NoteInfo> noteList = new List<NoteInfo>();
     private List<TimingPointData> timingPoints = new List<TimingPointData>();
     
-    
-    
     private Song currentSong = null;
-
-    private bool musicStart = false;
-    public bool MusicStart 
+    
+    private MusicState currentState = MusicState.None;
+    
+    public MusicState CurrentState 
     {
-        get { return musicStart; }
-        set { musicStart = value; }
+        get => currentState;
+        set 
+        {
+            Debug.Log($"상태 변경: {currentState} -> {value}");
+            currentState = value;
+        }
     }
     
     void Awake()
@@ -58,18 +71,13 @@ public class GameManager : Singleton<GameManager>
     void Initialized()
     {
         // 게임 시작 시 진입
-        // MusicStart -> false
-        musicStart = true;
+        currentState = MusicState.Playing;
+        Debug.Log("currentState : " + currentState);
         
         // Score, Combo, Timing -> 초기화
         scoreController.Initialized();
         comboController.ResetCombo();
         timingController.Initialized();
-        
-        //TODO 
-        //TimingManager에 있는 boxNoteList 를 Clear해주는 작업도 필요함
-        
-        
     }
     
     #endregion

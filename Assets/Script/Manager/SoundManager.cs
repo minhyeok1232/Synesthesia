@@ -13,9 +13,6 @@ public class Sound
 
 public class SoundManager : Singleton<SoundManager>
 {
-    public static bool isMusicEnd = false;
-    public bool isPaused = false;
-    
     // Sound
     [SerializeField] private Sound[] bgm = null;
     [SerializeField] private Sound[] sfx = null;
@@ -31,12 +28,20 @@ public class SoundManager : Singleton<SoundManager>
     }
     void Update()
     {
-        if (GameManager.Instance.MusicStart && !isPaused)
+        if (GameManager.Instance.CurrentState == MusicState.Playing)
         {
-            if (!bgmPlayer.isPlaying && isMusicEnd)
+            if (bgmPlayer.clip != null && bgmPlayer.time >= bgmPlayer.clip.length - 0.1f)
             {
+                GameManager.Instance.CurrentState = MusicState.Finished;
+            }
+        }
+        
+        if (GameManager.Instance.CurrentState == MusicState.Finished)
+        {
+            if (bgmPlayer.isPlaying) 
+            {
+                bgmPlayer.Stop(); 
                 EndMusic();
-                isMusicEnd = false; // 중복 실행 방지
             }
         }
     }
@@ -86,23 +91,20 @@ public class SoundManager : Singleton<SoundManager>
     // 환경 설정 -> 일시 정지
     public void PauseBGM()
     {
-        isPaused = true; // "내가 의도적으로 멈춤" 표시
+        GameManager.Instance.CurrentState = MusicState.Paused;
         bgmPlayer.Pause();
     }
 
     // 재개
     public void ResumeBGM()
     {
-        isPaused = false; // "다시 재생" 표시
+        GameManager.Instance.CurrentState = MusicState.Playing;
         bgmPlayer.UnPause();
     }
 
     // 완전 정지
     public void StopBGM()
     {
-        if (GameManager.Instance.MusicStart)
-            GameManager.Instance.MusicStart = false;
-
         bgmPlayer.clip = null;
         bgmPlayer.Stop();
     }

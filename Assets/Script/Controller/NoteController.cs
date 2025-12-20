@@ -66,29 +66,29 @@ public class NoteController : MonoBehaviour
         noteObj.SetActive(true);
     }
 
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        EffectController effectController = GameManager.Instance.GetEffectController();
-        ComboController  comboController = GameManager.Instance.GetComboController();
-        TimingController timingController = GameManager.Instance.GetTimingController();
-        
-        if (collision.CompareTag("Note"))
-        {
-            int lineID = collision.GetComponent<Note>().GetLineID();
-            
-            if (collision.GetComponent<Note>().GetNoteFlag())
-            {
-                timingController.MissRecord();
-                effectController.JudgementEffect(4);
-                comboController.ResetCombo();
-            }
-            
-            if (lineID != -1 && lineID < timingController.boxNoteLists.Length)
-            {
-                timingController.boxNoteLists[lineID].Remove(collision.gameObject);
-            }
-            
-            ObjectPool.instance.ReturnNote(collision.gameObject, lineID);
-        }
-    }
+    // private void OnTriggerExit2D(Collider2D collision)
+    // {
+    //     EffectController effectController = GameManager.Instance.GetEffectController();
+    //     ComboController  comboController = GameManager.Instance.GetComboController();
+    //     TimingController timingController = GameManager.Instance.GetTimingController();
+    //     
+    //     if (collision.CompareTag("Note"))
+    //     {
+    //         int lineID = collision.GetComponent<Note>().GetLineID();
+    //         
+    //         if (collision.GetComponent<Note>().GetNoteFlag())
+    //         {
+    //             timingController.MissRecord();
+    //             effectController.JudgementEffect(4);
+    //             comboController.ResetCombo();
+    //         }
+    //         
+    //         if (lineID != -1 && lineID < timingController.boxNoteLists.Length)
+    //         {
+    //             timingController.boxNoteLists[lineID].Remove(collision.gameObject);
+    //         }
+    //         
+    //         ObjectPool.instance.ReturnNote(collision.gameObject, lineID);
+    //     }
+    // }
 }

@@ -26,9 +26,6 @@ public class TimingController : MonoBehaviour
     
     private Song song;
     
-    // 임시
-    private int count = 0;
-    
     private List<NoteInfo> notes; // 전체 노트
     private int noteIndex = 0;    // 노트 인덱스
     
@@ -69,7 +66,7 @@ public class TimingController : MonoBehaviour
 
     void Update()
     {
-        if (!GameManager.Instance.MusicStart || notes == null) return;
+        if (GameManager.Instance.CurrentState != MusicState.Playing || notes == null) return;
         
         // ms 단위 -> 음악 시간 가져오기
         float currentTime = SoundManager.Instance.GetMusicTime() * 1000f;
@@ -94,7 +91,7 @@ public class TimingController : MonoBehaviour
                 Note note = targetNoteObj.GetComponent<Note>();
                 float t_notePosY = targetNoteObj.transform.localPosition.y;
 
-                // Bad 하단 영역 timingBoxs[3].x
+                // Bad 하단 영역
                 float missLine = timingBoxs[3].x;
 
                 // 1. 영역을 벗어나는 즉시 Miss 판정
@@ -102,21 +99,15 @@ public class TimingController : MonoBehaviour
                 {
                     MissRecord();
                     GameManager.Instance.GetComboController().ResetCombo();
-                    GameManager.Instance.GetEffectController().JudgementEffect(4); // Miss 인덱스
+                    GameManager.Instance.GetEffectController().GetEffect("Hit", 4); // Miss 인덱스
                 
                     boxNoteLists[i].RemoveAt(0);
-                    
+
                     // 일반 노트는 여기서 바로 제거 가능
                     if (!note.info.isLongNote)
                     {
                         note.HideNote();
                     }
-                }
-                
-                if (note.info.isLongNote && t_notePosY < -3000f)
-                {
-                    note.isHolding = false;
-                    note.HideNote();
                 }
             }
         }
@@ -134,8 +125,6 @@ public class TimingController : MonoBehaviour
     // 각 노트의 정의는 NoteController 에 위임한다.
     void SpawnNote(NoteInfo info)
     {
-        Debug.Log("count : " + count);
-        count++;
         GameManager.Instance.GetNoteController().CreateNote(info);
     }
     
@@ -151,10 +140,6 @@ public class TimingController : MonoBehaviour
     
     public void CheckTiming(int keyID)
     {
-        EffectController effectController = GameManager.Instance.GetEffectController();
-        ComboController  comboController  = GameManager.Instance.GetComboController();
-        ScoreController  scoreController  = GameManager.Instance.GetScoreController();
-        
         List<GameObject> currentLineNotes = boxNoteLists[keyID];
         
         for(int i = 0; i < currentLineNotes.Count; i++)
@@ -191,11 +176,22 @@ public class TimingController : MonoBehaviour
     {
         if (boxNoteLists[keyID].Count > 0)
         {
+            GameObject noteObj = boxNoteLists[keyID][0];
             Note note = boxNoteLists[keyID][0].GetComponent<Note>();
 
             if (note.info.isLongNote && note.isHolding)
             {
-                // note.UpdateLongNoteLife();
+                float noteTopY = noteObj.transform.localPosition.y + (note.GetComponent<RectTransform>().rect.height);
+                float missLine = timingBoxs[3].x;
+                
+                if (noteTopY < missLine)
+                {
+                    note.isHolding = false;
+                    boxNoteLists[keyID].RemoveAt(0);
+                    // 롱노트를 정상적으로 다 처리했으므로 여기서 필요한 종료 연출 호출
+                    return;
+                }
+                
                 comboTickTimer += Time.deltaTime;
                 
                 if (comboTickTimer >= comboTickInterval)
@@ -203,6 +199,7 @@ public class TimingController : MonoBehaviour
                     // 콤보 및 점수 추가
                     GameManager.Instance.GetComboController().IncreaseCombo();
                     GameManager.Instance.GetScoreController().IncreaseScore(0);
+                    GameManager.Instance.GetEffectController()?.GetEffect("LongNoteHit", 0);
                     
                     comboTickTimer -= comboTickInterval; 
                 }
@@ -220,6 +217,7 @@ public class TimingController : MonoBehaviour
             if (note.info.isLongNote && note.isHolding)
             {
                 note.isHolding = false;
+                GameManager.Instance.GetEffectController()?.GetEffect("Up", 0);
                 
                 float currentTime = SoundManager.Instance.GetMusicTime() * 1000f;
             
@@ -228,7 +226,7 @@ public class TimingController : MonoBehaviour
                 {
                     // Miss 처리
                     GameManager.Instance.GetComboController().ResetCombo();
-                    GameManager.Instance.GetEffectController().JudgementEffect(4); // Miss
+                    GameManager.Instance.GetEffectController().GetEffect("Hit", 4); // Miss
                     MissRecord();
                 }
                 
@@ -249,7 +247,7 @@ public class TimingController : MonoBehaviour
             effectController.NoteHitEffect(keyID);
             scoreController.AnimPlayScore();
         }
-        effectController.JudgementEffect(judgeIndex);
+        effectController.GetEffect("Hit", judgeIndex);
         scoreController.IncreaseScore(judgeIndex);
         judgementRecord[judgeIndex]++;
 
