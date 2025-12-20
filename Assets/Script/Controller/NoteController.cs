@@ -32,7 +32,7 @@ public class NoteController : MonoBehaviour
         
         GameObject noteObj = ObjectPool.instance.GetNote(info.lane);
         
-        noteObj.transform.localPosition = new Vector3(-10000, -10000, 0);
+        noteObj.transform.localPosition = new Vector3(-10000, 0, 0);
         
         GameManager.Instance.GetTimingController()?.boxNoteLists[info.lane].Add(noteObj);
         if (noteObj == null) return;

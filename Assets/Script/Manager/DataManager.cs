@@ -110,14 +110,17 @@ public class DataManager : Singleton<DataManager> {
         note.isLongNote = (type & 128) != 0;
 
         // 4. 롱노트 여부에 따른 종료 시간 및 사운드 파일 파싱
-        if (note.isLongNote) {
+        if (note.isLongNote) 
+        {
             // 롱노트 데이터 예: "8981:0:0:0:40:kick1.wav"
             string[] extraData = data[5].Split(':');
             note.endTime = int.Parse(extraData[0]); // 첫 번째 값이 종료 시간
         
             if (extraData.Length > 5) 
                 note.hitSoundFile = extraData[5];
-        } else {
+        } 
+        else 
+        {
             // 일반 노트 데이터 예: "0:0:0:40:kick1.wav"
             note.endTime = note.startTime;
         
