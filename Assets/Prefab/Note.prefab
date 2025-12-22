@@ -15,7 +15,6 @@ GameObject:
   - component: {fileID: -7924204707002877835}
   - component: {fileID: -3466039765760062454}
   - component: {fileID: 5185036491377310002}
-  - component: {fileID: 2442223034382987686}
   m_Layer: 5
   m_Name: Note
   m_TagString: Note
@@ -196,17 +195,3 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 5
   m_TargetDisplay: 0
---- !u!114 &2442223034382987686
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6939981455685709712}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: adb30198aa32dd140b5750692dd48104, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  radius: 2
-  image: {fileID: 5311723800496619287}
