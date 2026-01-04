@@ -86,7 +86,9 @@ Unity 엔진을 활용하여 개발된 Built-In(PC) 2D 리듬게임 입니다
 - 모든 매니저 클래스(GameManager, SoundManager 등)가 Singleton<T>을 상속받도록 하여, 싱글톤 패턴을 위한 중복 코드를 작성하지 않고 관리 기능을 재사용합니다.
 
 ### 4️⃣ '다형성'
-아
+<img width="969" height="757" alt="image" src="https://github.com/user-attachments/assets/13f3e421-5991-42d0-bd29-e36af2be7e13" />
+Note 객체는 단일 클래스이지만, isLongNote 플래그에 따라 SetLongNoteLayout() 또는 SetNormalInitializeNote()가 실행되어 서로 다른 형태와 물리 크기를 가집니다.
+이는 클래스를 세분화를 하여, 확장 설계가 가능합니다.
 
 </details>
 
