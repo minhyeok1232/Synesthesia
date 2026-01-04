@@ -126,6 +126,6 @@ Note 객체는 단일 클래스이지만, isLongNote 플래그에 따라 SetLong
 </details>
 
 ---
-#### 플레이 영상 : [[https://www.youtube.com/watch?v=H8hn4GONI5I](https://www.youtube.com/watch?v=H8hn4GONI5I)](https://www.youtube.com/watch?v=Wb8Qj6Dlg80)
+#### 플레이 영상 : [https://www.youtube.com/watch?v=Wb8Qj6Dlg80](https://www.youtube.com/watch?v=Wb8Qj6Dlg80)
 <img width="846" height="864" alt="image" src="https://github.com/user-attachments/assets/42f96e2e-eede-455e-a021-526788661b74" />
 
