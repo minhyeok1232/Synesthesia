@@ -22,9 +22,6 @@ Unity 엔진을 활용하여 개발된 Built-In(PC) 2D 리듬게임 입니다
 <details>
   <summary>🎇 프로젝트 실행 방법</summary>
 
-<img width="759" height="879" alt="image" src="https://github.com/user-attachments/assets/81d40d5d-2359-463f-b187-28cbf4b11d8c" />
-<img width="1212" height="865" alt="image" src="https://github.com/user-attachments/assets/c4d15e14-e882-423f-8cae-fe606111d06d" />
- 
 ### 1️⃣ Git Clone 
   ```bash
   git clone https://github.com/minhyeok1232/Synesthesia.git 
@@ -32,6 +29,10 @@ Unity 엔진을 활용하여 개발된 Built-In(PC) 2D 리듬게임 입니다
 ### 2️⃣ 실행 파일
   Unity Hub 실행 후, 클론한 프로젝트 폴더를 선택 후 "Open" 클릭!
 </details>
+
+<img width="759" height="879" alt="image" src="https://github.com/user-attachments/assets/81d40d5d-2359-463f-b187-28cbf4b11d8c" />
+<img width="1212" height="865" alt="image" src="https://github.com/user-attachments/assets/c4d15e14-e882-423f-8cae-fe606111d06d" />
+
 
 ## 🎯 프로젝트 기간
 - MVP 개발 기간 : 2025.12.07 ~ 2025.12.21 
