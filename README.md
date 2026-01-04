@@ -6,8 +6,7 @@ Unity 엔진을 활용하여 개발된 Built-In(PC) 2D 리듬게임 입니다
 2. [🕒 프로젝트 기간](#-프로젝트-기간)
 3. [🔗 클래스 다이어그램](#-클래스-다이어그램) 
 4. [🔄 진행 및 개선 사항](#-진행-및-개선-사항)
-5. [⚡ 프로젝트 최적화 과정](#-프로젝트-최적화-과정)
-6. [📝 개발 관점에서의 느낀 점](#-개발-관점에서의-느낀-점)
+5. [💵 객체지향적 사고 관점 설명](#-객체지향적-사고-관점-설명)
     
 --- 
  
@@ -65,5 +64,56 @@ Unity 엔진을 활용하여 개발된 Built-In(PC) 2D 리듬게임 입니다
 
 <br><br>
 
-## ⚡ 프로젝트 최적화 과정
+## 💵 객체지향적 사고 관점 설명
+### 객체지향의 특징
+<details>
+  <summary> 객체지향의 특징 </summary>
 
+### 1️⃣ `캡슐화'
+<img width="1121" height="793" alt="image" src="https://github.com/user-attachments/assets/76e964b2-fabe-4d41-9e8c-47785647f2a2" />
+- 정보 은닉 및 상태 보호: ComboController나 ScoreController의 점수($currentScore$)와 콤보($currentCombo$) 변수를 private으로 선언하여 외부에서 직접 수정하지 못하도록 보호하였습니다.
+- 메서드를 통한 접근: 오직 IncreaseScore()나 IncreaseCombo()와 같은 공개된 메서드를 통해서만 상태가 변경되도록 설계하여 데이터의 무결성을 유지합니다.
+
+
+### 2️⃣ `추상화`
+<img width="1115" height="582" alt="image" src="https://github.com/user-attachments/assets/2ef4d5e7-26b8-42b0-87e7-98094d55e88b" />
+- 리듬 게임의 복잡한 정보를 NoteInfo, TimingPointData, Song 클래스/구조체로 정의하여, 필요한 속성(시간, 위치, 타입 등)만 추려내어 관리합니다.
+<img width="1122" height="687" alt="image" src="https://github.com/user-attachments/assets/965e9223-0d13-4f55-890f-80c6d3940f6c" />
+- Note.cs에서 일반 노트와 롱노트의 물리적 차이를 Setup()이라는 하나의 초기화 메서드 안에 추상화하여, 외부에서는 노트 종류와 상관없이 동일한 방식으로 생성할 수 있게 하였습니다.
+
+### 3️⃣ '상속성'
+<img width="1121" height="260" alt="image" src="https://github.com/user-attachments/assets/9c629633-6740-4146-91ab-986427186279" />
+- 모든 매니저 클래스(GameManager, SoundManager 등)가 Singleton<T>을 상속받도록 하여, 싱글톤 패턴을 위한 중복 코드를 작성하지 않고 관리 기능을 재사용합니다.
+
+### 4️⃣ '다형성'
+아
+
+</details>
+
+### 객체지향의 원칙
+<details>
+  <summary> 객체지향의 원칙 </summary>
+
+### 1️⃣ 단일 책임 원칙(SRP)
+<img width="1120" height="838" alt="image" src="https://github.com/user-attachments/assets/bc2bca64-fa6c-476b-8da2-105e4689990b" />
+- 역할 분리: 각 매니저들은 각자의 역할을 담당합니다. (DataManager, SoundManager, ... )
+
+### 2️⃣ 개방-폐쇄 원칙(OCP)
+<img width="828" height="857" alt="image" src="https://github.com/user-attachments/assets/ab76bb20-c4b9-4128-b167-2d7c27c42ef7" />
+- 확장성: ObjectPool은 ObjectInfo 배열을 통해 새로운 종류의 프리팹(예: 골드 노트, 장애물 등)이 추가되어도 내부 코드를 수정할 필요 없이 인스펙터에서의 설정만으로 대응이 가능합니다.
+
+### 3️⃣ 리스코프 치환 원칙(LSP)
+<img width="992" height="833" alt="image" src="https://github.com/user-attachments/assets/c69e2943-7e00-41c8-b222-67039f87edad" />
+- 싱글톤 확장: Singleton<T>을 상속받은 어떠한 클래스(T)라도 Instance 속성을 통해 부모의 기능을 완벽하게 수행하며 전역적으로 안전하게 접근 가능합니다.
+
+### 4️⃣ 인터페이스 분리 원칙(ISP)
+<img width="1118" height="433" alt="image" src="https://github.com/user-attachments/assets/641c7848-bba6-4619-b9d3-0705d1af414b" />
+- GameManager는 각 컨트롤러를 Get 메서드로 제공하여, 필요한 클래스가 자신에게 필요한 컨트롤러 기능만 호출하여 사용할 수 있도록 통로를 분리하였습니다.
+
+### 5️⃣ 의존 역전 원칙(DIP)
+<img width="1123" height="374" alt="image" src="https://github.com/user-attachments/assets/758b7c42-cec4-4ec2-b8e1-16ff199a152f" />
+- 중앙 집중 참조: 각 컨트롤러(Player, Timing 등)는 서로를 직접 참조하지 않습니다. 대신 GameManager라는 상위 중계자를 통해 통신함으로써 객체 간의 결합도를 낮추고 유연성을 확보했습니다.
+
+</details>
+
+---
